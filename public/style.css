@@ -1316,6 +1316,14 @@ body {
     font-size: 1.15rem;
   }
 
+  .brand-badge {
+    display: none;
+  }
+
+  .status-indicator {
+    display: none !important;
+  }
+
   .main-content {
     padding: 16px 14px;
   }
