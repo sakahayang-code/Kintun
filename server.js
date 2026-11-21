@@ -21,6 +21,7 @@ if (!fs.existsSync(UPLOAD_DIR)) {
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(__dirname));
 
 // In-memory transfers store
 // key -> transfer details
@@ -77,7 +78,7 @@ setInterval(() => {
 }, 30000);
 
 // API: Upload files
-app.post('/api/upload', upload.array('files', 50), (req, res) => {
+app.post('/api/upload', upload.any(), (req, res) => {
   try {
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({ error: 'No files uploaded' });

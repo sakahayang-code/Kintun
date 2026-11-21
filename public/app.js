@@ -147,6 +147,26 @@ class SoundEffects {
 }
 const sfx = new SoundEffects();
 
+// Dynamic Base Path & API URL resolution (supports subfolders like /kintun/)
+function getBasePath() {
+  let pathname = window.location.pathname;
+  if (pathname.includes('.')) {
+    pathname = pathname.substring(0, pathname.lastIndexOf('/') + 1);
+  }
+  if (!pathname.endsWith('/')) {
+    pathname += '/';
+  }
+  return pathname;
+}
+
+function getApiUrl(endpoint) {
+  return getBasePath() + 'api/' + endpoint;
+}
+
+function getShareUrl(key) {
+  return window.location.origin + getBasePath() + '?key=' + encodeURIComponent(key);
+}
+
 // Format file size
 function formatBytes(bytes, decimals = 1) {
   if (bytes === 0) return '0 Bytes';
@@ -450,12 +470,13 @@ async function executeSend(files, mode) {
   const formData = new FormData();
   formData.append('mode', mode);
   for (let i = 0; i < files.length; i++) {
+    formData.append('files[]', files[i]);
     formData.append('files', files[i]);
   }
 
   try {
     const xhr = new XMLHttpRequest();
-    xhr.open('POST', '/api/upload', true);
+    xhr.open('POST', getApiUrl('upload'), true);
 
     xhr.upload.onprogress = (e) => {
       if (e.lengthComputable) {
@@ -551,8 +572,7 @@ function displayActiveKey(transfer) {
   const formattedKey = transfer.key.slice(0, 3) + ' ' + transfer.key.slice(3);
   displayDigits.textContent = formattedKey;
 
-  const currentOrigin = window.location.origin;
-  const shareUrl = `${currentOrigin}/?key=${transfer.key}`;
+  const shareUrl = getShareUrl(transfer.key);
   shareLinkInput.value = shareUrl;
 
   // Render QR Code
@@ -640,11 +660,11 @@ function displayActiveKey(transfer) {
   };
 }
 
-// WebSocket Sender Listener
+// WebSocket Sender Listener & Polling Fallback
 function connectSenderWs(key) {
   try {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${protocol}//${window.location.host}/ws`;
+    const wsUrl = `${protocol}//${window.location.host}${getBasePath()}ws`;
     activeWs = new WebSocket(wsUrl);
 
     activeWs.onopen = () => {
@@ -663,8 +683,29 @@ function connectSenderWs(key) {
       } catch (err) {}
     };
   } catch (e) {
-    console.log('WS not available, using BroadcastChannel');
+    console.log('WS not available, using BroadcastChannel & Polling');
   }
+
+  // Polling fallback for PHP / Apache shared hosting
+  const pollTimer = setInterval(async () => {
+    if (activeTransferKey !== key) {
+      clearInterval(pollTimer);
+      return;
+    }
+    try {
+      const res = await fetch(getApiUrl('transfer/' + encodeURIComponent(key)));
+      if (res.ok) {
+        const data = await res.json();
+        if (data.downloadCount > 0) {
+          const pill = document.getElementById('peerStatusPill');
+          pill.className = 'peer-status-pill connected';
+          pill.innerHTML = `<span>${i18n[currentLang].receiverConnected}</span>`;
+          sfx.success();
+          clearInterval(pollTimer);
+        }
+      }
+    } catch(err) {}
+  }, 3000);
 
   if (window.BroadcastChannel) {
     const bc = new BroadcastChannel('kintun_channel');
@@ -720,7 +761,7 @@ async function executeReceive(key) {
   let transferData = null;
 
   try {
-    const res = await fetch(`/api/transfer/${key}`);
+    const res = await fetch(getApiUrl('transfer/' + encodeURIComponent(key)));
     if (res.ok) {
       transferData = await res.json();
     } else {
@@ -815,7 +856,7 @@ function openDownloadModal(transfer) {
         a.click();
         URL.revokeObjectURL(url);
       } else {
-        window.location.href = `/api/download/${transfer.key}/${file.index}`;
+        window.location.href = getApiUrl(`download/${transfer.key}/${file.index}`);
       }
     });
 
@@ -842,7 +883,7 @@ function openDownloadModal(transfer) {
       URL.revokeObjectURL(url);
     } else {
       // Backend archiver stream
-      window.location.href = `/api/download-all/${transfer.key}`;
+      window.location.href = getApiUrl(`download-all/${transfer.key}`);
     }
   };
 
