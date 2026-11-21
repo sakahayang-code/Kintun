@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kintun - Kirim & Terima Berkas Cepat & Aman</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23FF4A4A'><rect width='24' height='24' rx='6' fill='%23FF4A4A'/><path d='M4.5 12l15-7.5-5.5 15-2.5-6-7-1.5z' fill='white'/></svg>">
+  <link rel="stylesheet" href="style.css">
+  <!-- QRCode.js and JSZip CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand">
+        <div class="brand-logo">
+          <svg viewBox="0 0 24 24">
+            <path d="M3.5 11.5L20 4.5L14 19.5L11.5 13L3.5 11.5Z" />
+          </svg>
+        </div>
+        <div class="brand-text">Kintun</div>
+        <span class="brand-badge">Transfer</span>
+      </div>
+
+      <nav class="nav-links">
+        <button id="navTransfer" class="nav-item active">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M7 16V4m0 0L3 8m4-4l4 4m6 4v12m0 0l4-4m-4 4l-4-4"/>
+          </svg>
+          <span data-i18n="navTransfer">Transfer</span>
+        </button>
+        <button id="navHistory" class="nav-item">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+          <span data-i18n="navHistory">Riwayat</span>
+        </button>
+        <button id="navAbout" class="nav-item">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+          <span data-i18n="navAbout">Cara Kerja</span>
+        </button>
+      </nav>
+
+      <div class="header-actions">
+        <div class="status-indicator">
+          <span class="status-dot"></span>
+          <span data-i18n="serverStatus">Server Terhubung</span>
+        </div>
+        <div class="lang-toggle">
+          <button id="langId" class="lang-btn active">ID</button>
+          <button id="langEn" class="lang-btn">EN</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="main-content">
+    
+    <!-- View 1: Transfer (Send & Receive) -->
+    <section id="viewTransfer">
+      <div class="hero-banner">
+        <h1 class="hero-title" data-i18n="heroTitle">Kirim apa saja, <span>ke mana saja</span></h1>
+        <p class="hero-subtitle" data-i18n="heroSubtitle">Transfer file berkecepatan tinggi tanpa batas secara real-time atau buat tautan berbagi yang aman dan praktis.</p>
+      </div>
+
+      <div class="transfer-deck">
+        
+        <!-- CARD 1: KIRIM (SEND) -->
+        <div class="action-card" id="sendCard">
+          <div class="card-header">
+            <h2 class="card-title">
+              <span class="card-title-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="22" y1="2" x2="11" y2="13"></line>
+                  <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+              </span>
+              <span data-i18n="sendCardTitle">Kirim File</span>
+            </h2>
+            <span class="card-badge">P2P & Cloud Relay</span>
+          </div>
+
+          <!-- Send Setup View -->
+          <div id="sendSetupView">
+            <!-- Dropzone -->
+            <div class="dropzone" id="dropzone">
+              <input type="file" id="fileInput" multiple style="display: none;">
+              <input type="file" id="folderInput" webkitdirectory directory multiple style="display: none;">
+              
+              <div class="dropzone-icon">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 5v14M5 12h14"></path>
+                </svg>
+              </div>
+              <div class="dropzone-text" data-i18n="dropText">Tarik & lepas file di sini atau klik untuk memilih</div>
+              <div class="dropzone-subtext" data-i18n="dropSubtext">Mendukung semua format file hingga 10 GB</div>
+              <div class="dropzone-buttons">
+                <button type="button" class="btn-secondary" id="btnBrowseFiles">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+                    <polyline points="13 2 13 9 20 9"></polyline>
+                  </svg>
+                  <span data-i18n="btnAddFiles">+ Tambah File</span>
+                </button>
+                <button type="button" class="btn-secondary" id="btnBrowseFolder">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                  </svg>
+                  <span data-i18n="btnAddFolder">+ Tambah Folder</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- File Queue -->
+            <div id="fileQueueSection" class="hidden">
+              <div class="file-queue" id="fileQueueList"></div>
+              <div class="queue-summary">
+                <span id="queueSummary">0 file terpilih</span>
+                <button class="icon-btn delete" id="btnClearQueue" title="Hapus Semua">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  </svg>
+                </button>
+              </div>
+
+              <!-- Mode Selector -->
+              <div class="mode-selector">
+                <label class="mode-option active">
+                  <input type="radio" name="transferMode" value="direct" checked class="mode-radio">
+                  <div class="mode-details">
+                    <span class="mode-name" data-i18n="modeDirect">Langsung (Kunci 6-Digit)</span>
+                    <span class="mode-desc" data-i18n="modeDirectDesc">1:1 Real-time • Aktif selama 10 Menit</span>
+                  </div>
+                </label>
+                <label class="mode-option">
+                  <input type="radio" name="transferMode" value="link" class="mode-radio">
+                  <div class="mode-details">
+                    <span class="mode-name" data-i18n="modeLink">Tautan Berbagi</span>
+                    <span class="mode-desc" data-i18n="modeLinkDesc">Bisa diunduh banyak orang • Aktif 48 Jam</span>
+                  </div>
+                </label>
+              </div>
+
+              <!-- Upload Progress -->
+              <div id="sendUploadProgress" class="hidden">
+                <div class="progress-bar-container">
+                  <div class="progress-bar-fill" id="sendProgressBarFill"></div>
+                </div>
+                <div style="font-size: 0.8rem; text-align: right; color: var(--text-secondary); margin-bottom: 8px;" id="sendProgressPercent">0%</div>
+              </div>
+
+              <!-- Send Button -->
+              <button class="btn-primary" id="btnStartSend" disabled>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <line x1="22" y1="2" x2="11" y2="13"></line>
+                  <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+                <span data-i18n="btnSend">Kirim File Sekarang</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Transfer Active / Result Display -->
+          <div id="transferActiveBox" class="transfer-active-box hidden">
+            <div class="key-hero-display">
+              <div class="key-label" data-i18n="keyTitle">KUNCI TRANSFER ANDA</div>
+              <div class="key-digits" id="keyDisplayDigits">000 000</div>
+              <button class="btn-copy-key" id="btnCopyKey">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+                <span data-i18n="btnCopyKey">Salin Kunci</span>
+              </button>
+            </div>
+
+            <div class="countdown-box">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+              <span data-i18n="expiresIn">Kedaluwarsa dalam:</span>
+              <strong id="keyCountdownTimer">10:00</strong>
+            </div>
+
+            <!-- QR Code Section -->
+            <div class="qr-section">
+              <div class="qr-code-wrapper" id="qrCodeWrapper"></div>
+              <span class="qr-subtext" data-i18n="qrScanHint">Pindai kode QR ini dengan ponsel Anda untuk mengunduh langsung</span>
+            </div>
+
+            <!-- Receiver Status Radar -->
+            <div class="peer-status-pill" id="peerStatusPill">
+              <div class="radar-spinner"></div>
+              <span data-i18n="waitingReceiver">Menunggu penerima terhubung...</span>
+            </div>
+
+            <!-- Share Link Row -->
+            <div class="share-link-row">
+              <input type="text" readonly id="shareLinkInput" class="share-link-input">
+              <button class="btn-secondary" id="btnCopyLink" style="flex-shrink: 0;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                  <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                </svg>
+                <span data-i18n="copyLink">Salin Tautan</span>
+              </button>
+            </div>
+
+            <button class="btn-secondary" id="btnSendMore" style="width: 100%; justify-content: center; margin-top: 10px;">
+              <span data-i18n="sendMore">+ Kirim Berkas Lain</span>
+            </button>
+          </div>
+
+        </div>
+
+        <!-- CARD 2: TERIMA (RECEIVE) -->
+        <div class="action-card" id="receiveCard">
+          <div class="card-header">
+            <h2 class="card-title">
+              <span class="card-title-icon" style="background: #EFF6FF; color: #2563EB;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"></path>
+                </svg>
+              </span>
+              <span data-i18n="receiveCardTitle">Terima File</span>
+            </h2>
+            <span class="card-badge">Instant Download</span>
+          </div>
+
+          <div class="receive-box">
+            <!-- 6-digit input -->
+            <div class="receive-input-wrapper">
+              <input 
+                type="text" 
+                id="receiveKeyInput" 
+                class="receive-input" 
+                maxlength="6" 
+                placeholder="000000" 
+                data-i18n-placeholder="receivePlaceholder"
+                autocomplete="off"
+              >
+              <button class="receive-submit-btn" id="btnReceiveSubmit" title="Mulai Unduh">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                  <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+              </button>
+            </div>
+
+            <div class="receive-options-divider">atau</div>
+
+            <!-- QR Scanner Button -->
+            <button class="btn-qr-scan" id="btnScanQr">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7"></rect>
+                <rect x="14" y="3" width="7" height="7"></rect>
+                <rect x="14" y="14" width="7" height="7"></rect>
+                <rect x="3" y="14" width="7" height="7"></rect>
+              </svg>
+              <span data-i18n="btnScanQr">Pindai Kode QR Kamera / Gambar</span>
+            </button>
+
+            <!-- Recent Keys Chip Section -->
+            <div class="recent-keys-card">
+              <div class="recent-keys-title">
+                <span data-i18n="recentKeys">Kunci Terkini</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="1 4 1 10 7 10"></polyline>
+                  <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                </svg>
+              </div>
+              <div class="recent-chips" id="recentKeysList"></div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- View 2: Riwayat (History) -->
+    <section id="viewHistory" class="hidden">
+      <div class="history-section">
+        <div class="history-header">
+          <h2 class="card-title" data-i18n="historyTitle">Riwayat Transfer</h2>
+          <button class="btn-secondary" id="btnClearHistory">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </svg>
+            <span data-i18n="clearHistory">Bersihkan Riwayat</span>
+          </button>
+        </div>
+        <div class="history-list" id="historyList"></div>
+      </div>
+    </section>
+
+    <!-- View 3: Cara Kerja (About) -->
+    <section id="viewAbout" class="hidden">
+      <div class="hero-banner" style="margin-bottom: 24px;">
+        <h2 class="hero-title">Cara Kerja Kintun</h2>
+        <p class="hero-subtitle">Transfer berkas digital secara langsung, cepat, dan aman lintas sistem operasi tanpa batasan perangkat.</p>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-box">
+          <div class="feature-icon-badge">⚡</div>
+          <h3 class="feature-title">Kunci 6-Digit (1:1 Real-Time)</h3>
+          <p class="feature-text">Kunci numerik 6-digit dibuat saat Anda memilih berkas. Masukkan kunci ini pada perangkat penerima dalam kurun waktu 10 menit untuk memulai transfer langsung secara instan.</p>
+        </div>
+
+        <div class="feature-box">
+          <div class="feature-icon-badge" style="background:#DBEAFE; color:#2563EB;">🔗</div>
+          <h3 class="feature-title">Tautan Berbagi (Link Sharing)</h3>
+          <p class="feature-text">Buat tautan unduhan untuk dibagikan ke banyak penerima sekaligus (misalnya via email, chat grup, atau forum). Tautan aktif selama 48 jam dan dapat diunduh berkali-kali tanpa batas.</p>
+        </div>
+
+        <div class="feature-box">
+          <div class="feature-icon-badge" style="background:#ECFDF5; color:#059669;">📱</div>
+          <h3 class="feature-title">Pindai Kode QR Lintas Perangkat</h3>
+          <p class="feature-text">Transfer mudah antara PC dan smartphone (Android / iOS) hanya dengan mengarahkan kamera ke kode QR yang muncul di layar, tanpa perlu login atau instalasi aplikasi rumit.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Download Modal -->
+  <div class="modal-overlay" id="downloadModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title" data-i18n="modalReceiveTitle">Berkas Siap Diunduh</h3>
+        <button class="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="modalMetaInfo"></div>
+        <div class="file-queue" id="modalFilesList" style="max-height: 280px; margin-bottom: 20px;"></div>
+        <button class="btn-primary" id="btnDownloadAllZip">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"></path>
+          </svg>
+          <span data-i18n="downloadAllZip">Unduh Semua (.ZIP)</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- QR Scanner Modal -->
+  <div class="modal-overlay" id="qrScannerModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title">Pindai Kode QR</h3>
+        <button class="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="qrReaderContainer"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    <div class="footer-container">
+      <div>&copy; Kintun • Berbagi Berkas Cepat, Aman & Praktis</div>
+      <div class="footer-links">
+        <a href="#about" onclick="document.getElementById('navAbout').click()">Tentang</a>
+        <a href="#transfer" onclick="document.getElementById('navTransfer').click()">Kirim & Terima</a>
+        <a href="#history" onclick="document.getElementById('navHistory').click()">Riwayat</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

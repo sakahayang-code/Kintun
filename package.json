@@ -1,0 +1,20 @@
+{
+  "name": "kintun",
+  "version": "1.0.0",
+  "description": "Kintun - Layanan Transfer Berkas Cepat, Aman & Praktis",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "archiver": "^8.0.0",
+    "cors": "^2.8.6",
+    "express": "^5.3.0",
+    "multer": "^2.5.0",
+    "ws": "^8.23.0"
+  }
+}
