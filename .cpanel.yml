@@ -2,7 +2,6 @@
 deployment:
   tasks:
     - export DEPLOYPATH=/home/mulw1713/public_html/kintun
-    - /bin/mkdir -p $DEPLOYPATH
-    - /bin/cp -R * $DEPLOYPATH/
-    - /bin/cp .htaccess $DEPLOYPATH/
-    - /bin/chmod -R 775 $DEPLOYPATH/storage $DEPLOYPATH/database
+    - /bin/mkdir -p $DEPLOYPATH/uploads
+    - if [ "$PWD" != "$DEPLOYPATH" ]; then /bin/cp -f index.html style.css app.js api.php cron.php manifest.json sw.js .htaccess $DEPLOYPATH/ 2>/dev/null || true; /bin/cp -rf icons $DEPLOYPATH/ 2>/dev/null || true; fi
+    - /bin/chmod 775 $DEPLOYPATH/uploads 2>/dev/null || true
