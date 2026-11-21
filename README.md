@@ -47,6 +47,20 @@ Kintun dirancang fleksibel: dapat langsung berjalan di **cPanel / Apache / Share
    - File `.htaccess` akan otomatis mengarahkan panggilan API ke `api.php`.
    - File transfer, pembuatan ZIP, dan pembersihan otomatis ditangani oleh `api.php`.
 
+#### 🧹 Pembersihan Otomatis Berkas (Auto-Deletion 10 Menit):
+- Setiap berkas yang diunggah memiliki masa kedaluwarsa **tepat 10 menit**.
+- Secara otomatis, setiap ada pengunjung yang mengakses `api.php`, sistem langsung menyapu dan menghapus semua berkas/folder yang berumur lebih dari 10 menit.
+- *(Opsional & Disarankan)*: Anda juga dapat menambahkan **Cron Job** di cPanel untuk memastikan berkas selalu dibersihkan bahkan saat tidak ada pengunjung:
+  - **Interval**: Setiap 5 atau 10 menit (`*/5 * * * *` atau `*/10 * * * *`)
+  - **Command**:
+    ```bash
+    php -q /home/USERNAME/public_html/kintun/cron.php >/dev/null 2>&1
+    ```
+    *Atau menggunakan wget / curl:*
+    ```bash
+    curl -s https://domainanda.com/kintun/cron.php >/dev/null 2>&1
+    ```
+
 ### Opsi B: Node.js Server (VPS / Cloud / cPanel Node.js App)
 1. Pasang dependensi:
    ```bash
@@ -57,6 +71,7 @@ Kintun dirancang fleksibel: dapat langsung berjalan di **cPanel / Apache / Share
    npm start
    ```
 3. Akses via `http://localhost:3000` (atau atur Reverse Proxy Nginx/Apache ke port 3000).
+   - Server Node.js menjalankan *garbage collector interval* setiap 15 detik untuk menghapus berkas yang telah melewati 10 menit.
 
 ---
 

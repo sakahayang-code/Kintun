@@ -55,12 +55,12 @@ const upload = multer({
   limits: { fileSize: 500 * 1024 * 1024 } // 500MB per file for local demo
 });
 
-// Periodic cleanup of expired transfers
+// Periodic cleanup of expired transfers (Setiap 15 detik)
 setInterval(() => {
   const now = Date.now();
   for (const [key, transfer] of transfers.entries()) {
     if (transfer.expiresAt <= now) {
-      console.log(`[CLEANUP] Transfer expired: ${key}`);
+      console.log(`[CLEANUP] Transfer expired & deleted: ${key}`);
       if (transfer.files && Array.isArray(transfer.files)) {
         for (const file of transfer.files) {
           try {
@@ -75,7 +75,7 @@ setInterval(() => {
       transfers.delete(key);
     }
   }
-}, 30000);
+}, 15000);
 
 // API: Upload files
 app.post('/api/upload', upload.any(), (req, res) => {
@@ -87,8 +87,8 @@ app.post('/api/upload', upload.any(), (req, res) => {
     const mode = req.body.mode === 'link' ? 'link' : 'direct';
     const now = Date.now();
     
-    // Direct transfer expires in 10 minutes (600,000ms), Link transfer expires in 48 hours
-    const ttl = mode === 'direct' ? 10 * 60 * 1000 : 48 * 60 * 60 * 1000;
+    // STRICT 10 MENIT (600.000 ms): Terhapus otomatis demi hemat kapasitas hosting & privasi
+    const ttl = 10 * 60 * 1000;
     const expiresAt = now + ttl;
 
     const key = generate6DigitKey();

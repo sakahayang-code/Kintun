@@ -18,19 +18,42 @@ if (!is_dir($uploadDir)) {
     @mkdir($uploadDir, 0777, true);
 }
 
-// Bersihkan transfer kedaluwarsa secara berkala
+// Bersihkan transfer kedaluwarsa secara berkala (Strict 10 Menit)
 function cleanupExpiredTransfers($uploadDir) {
     if (!is_dir($uploadDir)) return;
     $now = round(microtime(true) * 1000);
+    $nowSec = time();
     $items = scandir($uploadDir);
     foreach ($items as $item) {
         if ($item === '.' || $item === '..') continue;
-        $folder = $uploadDir . '/' . $item;
-        $metaFile = $folder . '/meta.json';
-        if (is_file($metaFile)) {
-            $meta = json_decode(file_get_contents($metaFile), true);
-            if ($meta && isset($meta['expiresAt']) && $meta['expiresAt'] <= $now) {
-                deleteDir($folder);
+        $path = $uploadDir . '/' . $item;
+
+        // Bersihkan file link_*.txt yang berumur lebih dari 10 menit (600 detik)
+        if (is_file($path) && strpos($item, 'link_') === 0) {
+            if (($nowSec - filemtime($path)) >= 600) {
+                @unlink($path);
+            }
+            continue;
+        }
+
+        if (is_dir($path)) {
+            $metaFile = $path . '/meta.json';
+            $shouldDelete = false;
+
+            if (is_file($metaFile)) {
+                $meta = json_decode(file_get_contents($metaFile), true);
+                if ($meta && isset($meta['expiresAt']) && $meta['expiresAt'] <= $now) {
+                    $shouldDelete = true;
+                }
+            }
+
+            // Fail-safe: jika folder berumur >= 10 menit (600 detik)
+            if (!$shouldDelete && ($nowSec - filemtime($path)) >= 600) {
+                $shouldDelete = true;
+            }
+
+            if ($shouldDelete) {
+                deleteDir($path);
             }
         }
     }
@@ -45,7 +68,7 @@ function deleteDir($dir) {
     @rmdir($dir);
 }
 
-// Jalankan pembersihan berkas kedaluwarsa
+// Jalankan pembersihan berkas kedaluwarsa pada setiap request
 cleanupExpiredTransfers($uploadDir);
 
 // Ekstraksi route dari request URL
@@ -63,6 +86,18 @@ if (empty($route)) {
 $parts = explode('/', $route);
 $endpoint = $parts[0] ?? '';
 
+// Endpoint Cron pembersihan berkas (GET api/cron)
+if ($endpoint === 'cron') {
+    cleanupExpiredTransfers($uploadDir);
+    header('Content-Type: application/json');
+    echo json_encode([
+        'status' => 'success',
+        'message' => 'Berkas kedaluwarsa (> 10 menit) telah dibersihkan',
+        'time' => date('Y-m-d H:i:s')
+    ]);
+    exit;
+}
+
 // 1. ENDPOINT: Upload File (POST api/upload)
 if ($endpoint === 'upload' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $uploadedFiles = $_FILES['files'] ?? (!empty($_FILES) ? reset($_FILES) : null);
@@ -75,7 +110,9 @@ if ($endpoint === 'upload' && $_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $mode = (isset($_POST['mode']) && $_POST['mode'] === 'link') ? 'link' : 'direct';
     $now = round(microtime(true) * 1000);
-    $ttl = ($mode === 'direct') ? (10 * 60 * 1000) : (48 * 60 * 60 * 1000);
+    
+    // STRICT 10 MENIT (600.000 ms): Berkas otomatis terhapus setelah 10 menit demi privasi & kapasitas hosting
+    $ttl = 10 * 60 * 1000;
     $expiresAt = $now + $ttl;
 
     // Buat 6-digit key unik

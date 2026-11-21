@@ -17,9 +17,9 @@ const i18n = {
     filesSelected: 'file terpilih',
     clearAll: 'Hapus Semua',
     modeDirect: 'Langsung (Kunci 6-Digit)',
-    modeDirectDesc: '1:1 Real-time • Aktif selama 10 Menit',
+    modeDirectDesc: '1:1 Real-time • Dihapus otomatis dalam 10 Menit',
     modeLink: 'Tautan Berbagi',
-    modeLinkDesc: 'Bisa diunduh banyak orang • Aktif 48 Jam',
+    modeLinkDesc: 'Bisa banyak unduh • Dihapus otomatis dalam 10 Menit',
     btnSend: 'Kirim File Sekarang',
     keyTitle: 'KUNCI TRANSFER ANDA',
     btnCopyKey: 'Salin Kunci',
@@ -64,9 +64,9 @@ const i18n = {
     filesSelected: 'files selected',
     clearAll: 'Clear All',
     modeDirect: 'Direct (6-Digit Key)',
-    modeDirectDesc: '1:1 Real-time • Expires in 10 Minutes',
+    modeDirectDesc: '1:1 Real-time • Auto-deleted in 10 Minutes',
     modeLink: 'Share Link',
-    modeLinkDesc: 'Multi-download • Active for 48 Hours',
+    modeLinkDesc: 'Multi-download • Auto-deleted in 10 Minutes',
     btnSend: 'Send Files Now',
     keyTitle: 'YOUR TRANSFER KEY',
     btnCopyKey: 'Copy Key',
@@ -640,7 +640,7 @@ function fallbackClientSend(files, mode) {
   const key = Math.floor(100000 + Math.random() * 900000).toString();
   const linkId = Math.random().toString(36).substring(2, 10);
   const now = Date.now();
-  const ttl = mode === 'direct' ? 10 * 60 * 1000 : 48 * 60 * 60 * 1000;
+  const ttl = 10 * 60 * 1000; // Strict 10 menit auto-delete
   
   const fileItems = files.map((f, i) => ({
     index: i,
