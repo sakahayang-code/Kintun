@@ -1140,3 +1140,241 @@ body {
   from { transform: translateY(100%); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
 }
+
+/* ============================================================
+   ANDROID PWA & NATIVE MOBILE INTERFACE (MATERIAL DESIGN 3)
+   ============================================================ */
+
+/* Install PWA Button */
+.btn-install-pwa {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--primary);
+  color: #FFFFFF;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(255, 74, 74, 0.3);
+  transition: all 0.2s ease;
+  animation: pulse-soft 2s infinite;
+}
+
+@keyframes pulse-soft {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+  100% { transform: scale(1); }
+}
+
+.btn-install-pwa:active {
+  transform: scale(0.95);
+}
+
+/* Android Bottom Navigation Bar */
+.android-bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: calc(64px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  background: #FFFFFF;
+  border-top: 1px solid #E5E7EB;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.05);
+  z-index: 99;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.bottom-nav-item {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #6B7280;
+  padding: 6px 0;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+.bottom-nav-item .nav-icon-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 30px;
+  border-radius: 16px;
+  transition: all 0.2s ease;
+}
+
+.bottom-nav-item.active .nav-icon-wrapper {
+  background: #FFF0F0;
+  color: #FF4A4A;
+}
+
+.bottom-nav-item.active {
+  color: #FF4A4A;
+}
+
+.bottom-nav-item .nav-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  margin-top: 2px;
+  letter-spacing: 0.2px;
+}
+
+.bottom-nav-item:active {
+  transform: scale(0.92);
+}
+
+/* Android PWA Bottom Sheet Install Banner */
+.pwa-install-banner {
+  position: fixed;
+  bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+  left: 16px;
+  right: 16px;
+  background: #FFFFFF;
+  border-radius: 18px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  border: 1px solid #E5E7EB;
+  padding: 16px;
+  z-index: 98;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.pwa-banner-icon {
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(135deg, #FF5B5B 0%, #FF3333 100%);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.pwa-banner-text {
+  flex: 1;
+}
+
+.pwa-banner-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1A1D20;
+}
+
+.pwa-banner-desc {
+  font-size: 0.75rem;
+  color: #6B7280;
+  margin-top: 2px;
+}
+
+.pwa-banner-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Mobile Responsive Overrides */
+@media (max-width: 768px) {
+  body {
+    -webkit-tap-highlight-color: transparent;
+    padding-bottom: calc(68px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .android-bottom-nav {
+    display: flex;
+  }
+
+  .app-header .nav-links {
+    display: none;
+  }
+
+  .app-header {
+    height: 56px;
+  }
+
+  .header-container {
+    height: 56px;
+    padding: 0 16px;
+  }
+
+  .brand-text {
+    font-size: 1.15rem;
+  }
+
+  .main-content {
+    padding: 16px 14px;
+  }
+
+  .hero-banner {
+    margin-bottom: 18px;
+  }
+
+  .hero-title {
+    font-size: 1.55rem;
+    letter-spacing: -0.5px;
+  }
+
+  .hero-subtitle {
+    font-size: 0.88rem;
+  }
+
+  .action-card {
+    padding: 20px 16px;
+    border-radius: 20px;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
+  }
+
+  /* Toggle mobile card display */
+  body[data-mobile-tab="send"] #sendCard {
+    display: block !important;
+  }
+  body[data-mobile-tab="send"] #receiveCard {
+    display: none !important;
+  }
+
+  body[data-mobile-tab="receive"] #sendCard {
+    display: none !important;
+  }
+  body[data-mobile-tab="receive"] #receiveCard {
+    display: block !important;
+  }
+
+  body[data-mobile-tab="history"] #viewTransfer {
+    display: none !important;
+  }
+  body[data-mobile-tab="history"] #viewHistory {
+    display: block !important;
+  }
+
+  body[data-mobile-tab="about"] #viewTransfer {
+    display: none !important;
+  }
+  body[data-mobile-tab="about"] #viewAbout {
+    display: block !important;
+  }
+
+  .receive-input {
+    height: 58px;
+    font-size: 1.4rem;
+    letter-spacing: 3px;
+  }
+
+  .app-footer {
+    padding: 20px 16px 80px;
+  }
+}

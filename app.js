@@ -43,7 +43,11 @@ const i18n = {
     copiedSuccess: 'Berhasil disalin ke papan klip!',
     uploadSuccess: 'File berhasil disiapkan untuk transfer!',
     keyNotFound: 'Kunci atau tautan tidak ditemukan atau sudah kedaluwarsa.',
-    serverStatus: 'Server Terhubung'
+    serverStatus: 'Server Terhubung',
+    bottomNavSend: 'Kirim',
+    bottomNavReceive: 'Terima',
+    bottomNavHistory: 'Riwayat',
+    bottomNavAbout: 'Panduan'
   },
   en: {
     heroTitle: 'Send whatever you want, <span>wherever you want</span>',
@@ -86,7 +90,11 @@ const i18n = {
     copiedSuccess: 'Copied to clipboard!',
     uploadSuccess: 'Files ready for transfer!',
     keyNotFound: 'Key or link not found or already expired.',
-    serverStatus: 'Server Connected'
+    serverStatus: 'Server Connected',
+    bottomNavSend: 'Send',
+    bottomNavReceive: 'Receive',
+    bottomNavHistory: 'History',
+    bottomNavAbout: 'Guide'
   }
 };
 
@@ -235,6 +243,9 @@ function saveHistoryItem(item) {
 document.addEventListener('DOMContentLoaded', () => {
   setupLanguage();
   setupNavigation();
+  setupAndroidBottomNav();
+  setupPwaInstall();
+  registerServiceWorker();
   setupDropzone();
   setupReceiveCard();
   setupModals();
@@ -249,6 +260,120 @@ document.addEventListener('DOMContentLoaded', () => {
     executeReceive(keyParam.trim());
   }
 });
+
+// PWA Service Worker Registration
+function registerServiceWorker() {
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .then(reg => console.log('Kintun PWA ServiceWorker ready:', reg.scope))
+        .catch(err => console.log('ServiceWorker registration error:', err));
+    });
+  }
+}
+
+// PWA Install Prompt Handler
+let deferredPrompt = null;
+function setupPwaInstall() {
+  const btnInstall = document.getElementById('btnInstallPwa');
+  const banner = document.getElementById('pwaInstallBanner');
+  const btnBannerInstall = document.getElementById('btnBannerInstall');
+  const btnBannerDismiss = document.getElementById('btnBannerDismiss');
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    if (btnInstall) btnInstall.classList.remove('hidden');
+    if (banner) banner.classList.remove('hidden');
+  });
+
+  async function triggerInstall() {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      showToast('Terima kasih telah memasang Kintun!', 'success');
+    }
+    deferredPrompt = null;
+    if (btnInstall) btnInstall.classList.add('hidden');
+    if (banner) banner.classList.add('hidden');
+  }
+
+  if (btnInstall) btnInstall.addEventListener('click', triggerInstall);
+  if (btnBannerInstall) btnBannerInstall.addEventListener('click', triggerInstall);
+  if (btnBannerDismiss) {
+    btnBannerDismiss.addEventListener('click', () => {
+      banner.classList.add('hidden');
+    });
+  }
+
+  window.addEventListener('appinstalled', () => {
+    if (btnInstall) btnInstall.classList.add('hidden');
+    if (banner) banner.classList.add('hidden');
+    showToast('Aplikasi Kintun siap digunakan dari layar utama!', 'success');
+  });
+}
+
+// Android Material 3 Bottom Navigation Setup
+function setupAndroidBottomNav() {
+  const bottomNav = document.getElementById('androidBottomNav');
+  if (!bottomNav) return;
+
+  const navButtons = bottomNav.querySelectorAll('.bottom-nav-item');
+  document.body.setAttribute('data-mobile-tab', 'send');
+
+  navButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (navigator.vibrate) navigator.vibrate(12);
+      sfx.click();
+
+      navButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const tab = btn.getAttribute('data-tab');
+      document.body.setAttribute('data-mobile-tab', tab);
+
+      const viewTransfer = document.getElementById('viewTransfer');
+      const viewHistory = document.getElementById('viewHistory');
+      const viewAbout = document.getElementById('viewAbout');
+
+      if (tab === 'send' || tab === 'receive') {
+        viewTransfer.classList.remove('hidden');
+        viewHistory.classList.add('hidden');
+        viewAbout.classList.add('hidden');
+        document.getElementById('navTransfer').classList.add('active');
+        document.getElementById('navHistory').classList.remove('active');
+        document.getElementById('navAbout').classList.remove('active');
+      } else if (tab === 'history') {
+        viewTransfer.classList.add('hidden');
+        viewHistory.classList.remove('hidden');
+        viewAbout.classList.add('hidden');
+        document.getElementById('navTransfer').classList.remove('active');
+        document.getElementById('navHistory').classList.add('active');
+        document.getElementById('navAbout').classList.remove('active');
+      } else if (tab === 'about') {
+        viewTransfer.classList.add('hidden');
+        viewHistory.classList.add('hidden');
+        viewAbout.classList.remove('hidden');
+        document.getElementById('navTransfer').classList.remove('active');
+        document.getElementById('navHistory').classList.remove('active');
+        document.getElementById('navAbout').classList.add('active');
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const action = urlParams.get('action');
+  if (action === 'receive') {
+    const bReceive = document.getElementById('bnavReceive');
+    if (bReceive) bReceive.click();
+  } else if (action === 'send') {
+    const bSend = document.getElementById('bnavSend');
+    if (bSend) bSend.click();
+  }
+}
 
 // Setup Language
 function setupLanguage() {

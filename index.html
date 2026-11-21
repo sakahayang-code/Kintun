@@ -2,9 +2,16 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#FF4A4A">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Kintun">
   <title>Kintun - Kirim & Terima Berkas Cepat & Aman</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23FF4A4A'><rect width='24' height='24' rx='6' fill='%23FF4A4A'/><path d='M4.5 12l15-7.5-5.5 15-2.5-6-7-1.5z' fill='white'/></svg>">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="style.css">
   <!-- QRCode.js and JSZip CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -51,6 +58,12 @@
       </nav>
 
       <div class="header-actions">
+        <button class="btn-install-pwa hidden" id="btnInstallPwa" title="Pasang Aplikasi Kintun">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"></path>
+          </svg>
+          <span>Pasang</span>
+        </button>
         <div class="status-indicator">
           <span class="status-dot"></span>
           <span data-i18n="serverStatus">Server Terhubung</span>
@@ -384,6 +397,66 @@
       </div>
     </div>
   </footer>
+
+  <!-- PWA Android Install Bottom Sheet Banner -->
+  <div class="pwa-install-banner hidden" id="pwaInstallBanner">
+    <div class="pwa-banner-icon">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="#FFFFFF">
+        <path d="M3.5 11.5L20 4.5L14 19.5L11.5 13L3.5 11.5Z" />
+      </svg>
+    </div>
+    <div class="pwa-banner-text">
+      <div class="pwa-banner-title">Pasang Aplikasi Kintun</div>
+      <div class="pwa-banner-desc">Akses cepat dari layar utama Android & kirim berkas tanpa browser.</div>
+    </div>
+    <div class="pwa-banner-actions">
+      <button class="btn-primary" id="btnBannerInstall" style="padding:8px 14px; font-size:0.85rem; width:auto;">Pasang</button>
+      <button class="btn-secondary" id="btnBannerDismiss" style="padding:8px; border-radius:8px;">&times;</button>
+    </div>
+  </div>
+
+  <!-- Android Native Bottom Navigation Bar -->
+  <nav class="android-bottom-nav" id="androidBottomNav">
+    <button class="bottom-nav-item active" id="bnavSend" data-tab="send">
+      <div class="nav-icon-wrapper">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <line x1="22" y1="2" x2="11" y2="13"></line>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+        </svg>
+      </div>
+      <span class="nav-label" data-i18n="bottomNavSend">Kirim</span>
+    </button>
+
+    <button class="bottom-nav-item" id="bnavReceive" data-tab="receive">
+      <div class="nav-icon-wrapper">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"></path>
+        </svg>
+      </div>
+      <span class="nav-label" data-i18n="bottomNavReceive">Terima</span>
+    </button>
+
+    <button class="bottom-nav-item" id="bnavHistory" data-tab="history">
+      <div class="nav-icon-wrapper">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>
+      </div>
+      <span class="nav-label" data-i18n="bottomNavHistory">Riwayat</span>
+    </button>
+
+    <button class="bottom-nav-item" id="bnavAbout" data-tab="about">
+      <div class="nav-icon-wrapper">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="16" x2="12" y2="12"></line>
+          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+      </div>
+      <span class="nav-label" data-i18n="bottomNavAbout">Panduan</span>
+    </button>
+  </nav>
 
   <script src="app.js"></script>
 </body>
